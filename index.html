@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C:\PORTFOLIO\TAOJUN.EXE</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+/* ========== RESET & BASE ========== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;
+  background:#008080;
+  color:#222;
+  min-height:100vh;
+  overflow-x:hidden;
+  cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='24'><polygon points='0,0 16,10 10,10 16,24 12,24 6,13 0,17' fill='white' stroke='black' stroke-width='0.5'/></svg>") 0 0,auto;
+  image-rendering:pixelated;
+}
+a,button,.win-btn,.window-titlebar{cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='24'><polygon points='0,0 16,10 10,10 16,24 12,24 6,13 0,17' fill='white' stroke='black' stroke-width='0.5'/></svg>") 5 0,pointer}
+
+/* ========== CRT & SCANLINES ========== */
+.crt-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:9999;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.03) 0px,rgba(0,0,0,.03) 2px,transparent 2px,transparent 4px);
+}
+.crt-overlay::after{
+  content:'';position:absolute;top:0;left:0;width:100%;height:100%;
+  background:radial-gradient(ellipse at center,rgba(0,0,0,0) 60%,rgba(0,0,0,.15) 100%);
+}
+
+/* ========== DESKTOP ========== */
+.desktop{
+  position:relative;min-height:100vh;
+  padding:10px 10px 50px;
+  background-color:#008080;
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 24px,rgba(255,255,255,.03) 24px,rgba(255,255,255,.03) 25px),
+    repeating-linear-gradient(90deg,transparent,transparent 24px,rgba(255,255,255,.03) 24px,rgba(255,255,255,.03) 25px);
+}
+
+/* Desktop icons */
+.desktop-icons{
+  display:flex;flex-direction:column;gap:18px;
+  position:absolute;top:15px;left:15px;z-index:10;
+}
+.desk-icon{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  width:72px;text-align:center;padding:4px;
+}
+.desk-icon img,.desk-icon .icon-placeholder{
+  width:36px;height:36px;image-rendering:pixelated;
+}
+.desk-icon span{
+  font-size:10px;color:#fff;text-shadow:1px 1px 0 #000;
+  line-height:1.3;word-wrap:break-word;font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+}
+.icon-folder{font-size:32px;text-align:center;line-height:1}
+.icon-disk{font-size:28px;text-align:center;line-height:1}
+.icon-globe{font-size:30px;text-align:center;line-height:1}
+
+/* ========== BROWSER CHROME ========== */
+.browser-frame{
+  max-width:1100px;margin:60px auto 30px;
+  background:#c0c0c0;border:2px solid;
+  border-color:#fff #555 #555 #fff;
+  box-shadow:inset 1px 1px 0 #dfdfdf,inset -1px -1px 0 #000,3px 3px 0 rgba(0,0,0,.3);
+  position:relative;z-index:1;
+}
+
+/* Title bar */
+.browser-titlebar{
+  background:linear-gradient(90deg,#000080,#1084d0);
+  padding:4px 6px;display:flex;align-items:center;justify-content:space-between;
+  font-family:"Press Start 2P","Microsoft YaHei",monospace;
+  font-size:11px;color:#fff;
+  user-select:none;
+}
+.browser-title{
+  display:flex;align-items:center;gap:6px;
+  font-size:10px;letter-spacing:.5px;
+}
+.browser-title span{font-family:"Microsoft YaHei","PingFang SC",sans-serif;font-size:11px}
+.browser-btns{display:flex;gap:2px}
+.browser-btns button{
+  width:18px;height:18px;border:1px solid;border-color:#fff #555 #555 #fff;
+  background:#c0c0c0;display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:bold;color:#000;line-height:1;padding:0;
+}
+.browser-btns button.minimize{padding-bottom:2px}
+.browser-btns button.close{background:#c0c0c0;margin-left:2px}
+
+/* Menu bar */
+.browser-menubar{
+  display:flex;gap:12px;padding:3px 8px;
+  background:#c0c0c0;border-bottom:1px solid #888;
+  font-size:11px;font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+}
+.browser-menubar span{padding:1px 4px;cursor:pointer}
+.browser-menubar span:hover{background:#000080;color:#fff}
+
+/* Address bar */
+.browser-address{
+  display:flex;align-items:center;gap:6px;padding:5px 8px;
+  background:#c0c0c0;border-bottom:1px solid #888;
+  font-size:10px;
+}
+.browser-address label{font-size:10px;white-space:nowrap}
+.browser-address input{
+  flex:1;padding:2px 6px;font-size:11px;font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+  border:2px solid;border-color:#555 #fff #fff #555;
+  background:#fff;outline:none;color:#222;
+}
+
+/* Content area */
+.browser-content{
+  background:#fff;padding:0;
+  min-height:500px;
+}
+
+/* Status bar */
+.browser-status{
+  display:flex;align-items:center;gap:10px;padding:3px 8px;
+  background:#c0c0c0;border-top:1px solid #888;
+  font-size:10px;font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+}
+.browser-status .status-pad{
+  border:1px solid;border-color:#555 #fff #fff #555;
+  padding:2px 6px;font-size:9px;min-width:60px;
+}
+
+/* ========== WIN95 WINDOW ========== */
+.win-window{
+  background:#c0c0c0;border:2px solid;
+  border-color:#fff #555 #555 #fff;
+  box-shadow:inset 1px 1px 0 #dfdfdf,inset -1px -1px 0 #000;
+  margin:0;overflow:hidden;
+}
+
+.win-titlebar{
+  background:linear-gradient(90deg,#000080,#1084d0);
+  padding:3px 5px;display:flex;align-items:center;justify-content:space-between;
+  font-family:"Press Start 2P","Microsoft YaHei",monospace;
+  font-size:10px;color:#fff;user-select:none;
+}
+.win-titlebar .win-title{
+  display:flex;align-items:center;gap:5px;font-size:9px;
+  letter-spacing:.3px;
+}
+.win-titlebar .win-title .win-icon{font-size:13px}
+.win-titlebar .win-btns{display:flex;gap:2px}
+.win-titlebar .win-btns button{
+  width:16px;height:14px;border:1px solid;border-color:#fff #555 #555 #fff;
+  background:#c0c0c0;display:flex;align-items:center;justify-content:center;
+  font-size:8px;font-weight:bold;color:#000;line-height:1;padding:0;
+}
+
+.win-menubar{
+  display:flex;gap:10px;padding:2px 6px;
+  font-size:11px;border-bottom:1px solid #888;
+}
+.win-menubar span{padding:0 4px;cursor:pointer}
+.win-menubar span:hover{background:#000080;color:#fff}
+
+.win-body{
+  padding:12px;background:#fff;
+  font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+  font-size:13px;line-height:1.7;color:#222;
+}
+
+.win-statusbar{
+  display:flex;align-items:center;padding:2px 6px;
+  border-top:1px solid #888;font-size:10px;gap:8px;
+}
+
+/* Win95 form controls */
+.win-btn{
+  display:inline-block;padding:5px 16px;
+  font-family:"Microsoft YaHei","PingFang SC",sans-serif;font-size:11px;
+  border:2px solid;border-color:#fff #555 #555 #fff;
+  background:#c0c0c0;color:#000;text-decoration:none;
+  outline:1px solid #000;outline-offset:-4px;
+}
+.win-btn:active{border-color:#555 #fff #fff #555}
+.win-btn.primary{border-width:2px;font-weight:bold}
+
+/* ========== PAGE LAYOUT: WINDOW COLLAGE ========== */
+.page-content{
+  padding:15px 10px;
+  display:flex;flex-direction:column;gap:16px;
+  background:#fff;
+  background-image:
+    linear-gradient(45deg,#f0f0f0 25%,transparent 25%),
+    linear-gradient(-45deg,#f0f0f0 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,#f0f0f0 75%),
+    linear-gradient(-45deg,transparent 75%,#f0f0f0 75%);
+  background-size:4px 4px;background-position:0 0,0 2px,2px -2px,-2px 0;
+}
+
+/* ========== HERO BANNER ========== */
+.hero-banner{
+  background:#fff;padding:0;margin-bottom:4px;
+}
+.hero-window{
+  background:linear-gradient(180deg,#000080,#0000a0 40%,#000080);
+  padding:0;text-align:center;border:2px solid;border-color:#fff #555 #555 #fff;
+  position:relative;overflow:hidden;
+}
+.hero-inner{
+  padding:30px 20px;position:relative;z-index:1;
+}
+.hero-inner::before{
+  content:'';position:absolute;top:0;left:0;width:100%;height:100%;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,255,255,.02) 3px,rgba(255,255,255,.02) 4px);
+  pointer-events:none;z-index:0;
+}
+.hero-inner > *{position:relative;z-index:1}
+.hero-title{
+  font-family:"Press Start 2P","Courier New",monospace;
+  font-size:clamp(18px,4vw,32px);color:#fff;
+  text-shadow:3px 3px 0 #000,0 0 20px rgba(255,255,255,.3);
+  letter-spacing:2px;line-height:1.4;margin-bottom:8px;
+  image-rendering:pixelated;
+}
+.hero-name{
+  font-size:clamp(16px,3vw,26px);color:#ffcc00;
+  font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+  font-weight:bold;letter-spacing:4px;
+  text-shadow:1px 1px 0 #000;
+  margin-bottom:12px;
+}
+.hero-role{
+  font-size:clamp(10px,1.5vw,13px);color:#aad4ff;
+  font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+  letter-spacing:2px;
+}
+.hero-blink{
+  display:inline-block;width:10px;height:18px;background:#ffcc00;
+  margin-left:4px;vertical-align:middle;
+  animation:blink 1s step-end infinite;
+}
+@keyframes blink{50%{opacity:0}}
+
+/* Marquee */
+.marquee-bar{
+  background:#000080;color:#ffcc00;padding:4px 0;
+  font-size:10px;font-family:"Press Start 2P","Microsoft YaHei",monospace;
+  letter-spacing:1px;overflow:hidden;white-space:nowrap;
+  border-top:1px solid #fff;border-bottom:1px solid #555;
+}
+.marquee-inner{display:inline-block;animation:marquee 20s linear infinite}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ========== WINDOW COLLAGE GRID ========== */
+.windows-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+.windows-grid .span-2{grid-column:span 2}
+
+@media(max-width:900px){
+  .windows-grid{grid-template-columns:1fr}
+  .windows-grid .span-2{grid-column:span 1}
+}
+
+/* ========== SECTION SPECIFIC ========== */
+
+/* About */
+.about-photo-box{
+  float:right;width:120px;height:120px;margin:0 0 8px 12px;
+  border:2px solid;border-color:#555 #fff #fff #555;
+  background:#c0c0c0;padding:3px;
+}
+.about-photo-box img{
+  width:100%;height:100%;object-fit:cover;display:block;image-rendering:pixelated;
+}
+
+/* Timeline */
+.tl-item{
+  display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;
+  padding:6px;border:1px solid #ddd;font-size:12px;
+  transition:background .2s;
+}
+.tl-item:hover{background:#ece9d8}
+.tl-icon{
+  font-size:20px;min-width:28px;text-align:center;line-height:1.2;
+}
+.tl-info{flex:1}
+.tl-info strong{font-size:13px;display:block}
+.tl-info .tl-meta{font-size:10px;color:#666;margin-top:2px}
+.tl-info .tl-desc{font-size:11px;color:#444;margin-top:3px}
+.tl-info .tl-kw{font-size:10px;color:#888;margin-top:4px}
+
+/* AIGC Tabs */
+.aigc-tabs{display:flex;gap:2px;margin-bottom:10px;flex-wrap:wrap}
+.aigc-tab-btn{
+  padding:4px 12px;font-size:10px;font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+  border:2px solid;border-color:#fff #555 #555 #fff;
+  background:#c0c0c0;cursor:pointer;
+}
+.aigc-tab-btn.active{border-color:#555 #fff #fff #555;background:#ddd;font-weight:bold}
+.aigc-tab-content{display:none}
+.aigc-tab-content.active{display:block}
+
+/* Media player */
+.media-player{
+  background:#202020;border:2px solid;border-color:#555 #fff #fff #555;
+  padding:10px;color:#0f0;font-family:"Courier New",monospace;
+}
+.media-player .mp-screen{
+  background:#000;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;
+  font-size:12px;color:#0f0;border:2px solid #444;margin-bottom:8px;
+  position:relative;overflow:hidden;
+}
+.media-player .mp-screen img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0}
+.media-player .mp-controls{
+  display:flex;align-items:center;gap:6px;font-size:10px;
+}
+.mp-btn{
+  width:24px;height:20px;border:2px solid;border-color:#888 #333 #333 #888;
+  background:#555;color:#0f0;font-size:10px;display:flex;align-items:center;justify-content:center;
+}
+.mp-progress{
+  flex:1;height:12px;border:1px solid #555;
+  background:#111;
+}
+.mp-progress-fill{
+  height:100%;background:linear-gradient(90deg,#000080,#1084d0);
+  width:45%;position:relative;
+}
+.mp-progress-fill::after{
+  content:'';display:block;width:4px;height:100%;
+  background:repeating-linear-gradient(0deg,#000080 0px,#000080 2px,#1084d0 2px,#1084d0 4px);
+}
+
+/* Gallery grid */
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.gallery-grid.col2{grid-template-columns:repeat(2,1fr)}
+.gallery-item{
+  border:2px solid;border-color:#fff #555 #555 #fff;
+  background:#c0c0c0;padding:2px;
+}
+.gallery-item img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
+@media(max-width:600px){.gallery-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* File / folder nav */
+.file-nav{
+  display:flex;align-items:center;gap:8px;padding:4px 8px;
+  background:#fff;border:1px solid #ccc;margin-bottom:8px;font-size:11px;
+}
+.file-nav .fn-path{flex:1;border:1px solid #999;padding:2px 6px;font-size:10px}
+
+/* Progress bar */
+.win-progress{
+  height:16px;border:2px solid;border-color:#555 #fff #fff #555;
+  background:#fff;margin:6px 0;
+}
+.win-progress-fill{
+  height:100%;background:#000080;
+  background-image:repeating-linear-gradient(90deg,transparent,transparent 4px,rgba(255,255,255,.15) 4px,rgba(255,255,255,.15) 8px);
+}
+
+/* Contact */
+.contact-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+}
+.contact-card{
+  border:2px solid;border-color:#fff #555 #555 #fff;
+  background:#c0c0c0;padding:12px;text-align:center;
+  text-decoration:none;color:#000;
+  font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+}
+.contact-card:hover{background:#ddd}
+.contact-card:active{border-color:#555 #fff #fff #555}
+.contact-card .cc-icon{font-size:28px;margin-bottom:4px}
+.contact-card .cc-label{font-size:10px;color:#333;margin-bottom:2px}
+.contact-card .cc-value{font-size:12px;font-weight:bold;word-break:break-all}
+
+/* ========== TASKBAR ========== */
+.taskbar{
+  position:fixed;bottom:0;left:0;right:0;z-index:9998;
+  display:flex;align-items:center;gap:6px;
+  padding:3px 6px;
+  background:#c0c0c0;
+  border-top:2px solid #fff;
+  box-shadow:0 -1px 0 #888;
+  font-size:10px;
+}
+.taskbar-start{
+  padding:4px 10px;font-weight:bold;font-size:11px;
+  border:2px solid;border-color:#fff #555 #555 #fff;
+  background:#c0c0c0;font-family:"Press Start 2P","Microsoft YaHei",monospace;
+  font-size:9px;letter-spacing:1px;
+}
+.taskbar-start:active{border-color:#555 #fff #fff #555}
+.taskbar-tasks{
+  flex:1;display:flex;gap:3px;overflow-x:auto;
+}
+.taskbar-item{
+  padding:3px 14px;border:2px solid;border-color:#fff #555 #555 #fff;
+  background:#c0c0c0;white-space:nowrap;font-size:10px;
+  font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+  max-width:160px;overflow:hidden;
+}
+.taskbar-item.active{border-color:#555 #fff #fff #555;background:#ddd;font-weight:bold}
+.taskbar-clock{
+  padding:4px 10px;border:1px solid;border-color:#555 #fff #fff #555;
+  font-size:10px;text-align:right;min-width:70px;
+  font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+}
+
+/* ========== SCROLLBAR ========== */
+::-webkit-scrollbar{width:16px}
+::-webkit-scrollbar-track{background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4'><rect width='2' height='2' fill='%23c0c0c0'/><rect x='2' y='2' width='2' height='2' fill='%23c0c0c0'/></svg>")}
+::-webkit-scrollbar-thumb{
+  background:#c0c0c0;border:2px solid;border-color:#fff #555 #555 #fff;
+  min-height:30px;
+}
+::-webkit-scrollbar-button{display:block;height:16px;background:#c0c0c0;border:1px solid #888}
+::-webkit-scrollbar-button:vertical:decrement{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><polygon points='5,2 0,8 10,8' fill='%23000'/></svg>");background-repeat:no-repeat;background-position:center}
+::-webkit-scrollbar-button:vertical:increment{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'><polygon points='5,8 0,2 10,2' fill='%23000'/></svg>");background-repeat:no-repeat;background-position:center}
+
+/* ========== ANIMATIONS ========== */
+@keyframes winBoot{0%{opacity:0;transform:scale(.95)}100%{opacity:1;transform:scale(1)}}
+.browser-frame{animation:winBoot .4s ease-out}
+
+/* Clickable tab */
+.win-menubar span,.browser-menubar span{cursor:pointer}
+
+/* ========== ALERT BOX ========== */
+.alert-box{
+  background:#c0c0c0;border:2px solid;border-color:#fff #555 #555 #fff;
+  padding:16px;text-align:center;max-width:400px;margin:20px auto;
+}
+.alert-box .alert-icon{font-size:32px;margin-bottom:8px}
+.alert-box .alert-msg{font-size:12px;margin-bottom:12px;font-family:"Microsoft YaHei","PingFang SC",sans-serif}
+
+/* Tooltip / label */
+.pixel-label{
+  font-family:"Press Start 2P","Microsoft YaHei",monospace;
+  font-size:8px;color:#888;letter-spacing:1px;
+  text-transform:uppercase;margin-bottom:8px;
+}
+
+/* Separator */
+.win-sep{height:2px;background:#888;margin:10px 0;border:none}
+
+/* Skills grid */
+.skills-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:4px;
+}
+.skill-tag{
+  font-size:10px;padding:3px 8px;border:1px solid #999;
+  text-align:center;background:#ece9d8;
+}
+
+/* PixelCard glow for all sections */
+.pixel-glow {
+  box-shadow:
+    0 0 10px rgba(255,105,180,0.2),
+    0 0 25px rgba(255,105,180,0.1),
+    inset 0 0 20px rgba(255,105,180,0.03);
+}
+.pixel-glow:hover {
+  box-shadow:
+    0 0 18px rgba(255,105,180,0.35),
+    0 0 40px rgba(255,105,180,0.2),
+    inset 0 0 25px rgba(255,105,180,0.06);
+}
+.pixel-scanlines {
+  position: relative;
+}
+.pixel-scanlines::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255,105,180,0.03) 2px,
+    rgba(255,105,180,0.03) 4px
+  );
+}
+</style>
+</head>
+<body>
+
+<!-- Terminal Background -->
+<div id="terminal-bg" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none"></div>
+
+<div class="crt-overlay"></div>
+
+<!-- ===== DESKTOP ===== -->
+<div class="desktop">
+
+  <!-- Desktop Icons -->
+  <div class="desktop-icons">
+    <a href="#about" class="desk-icon" style="text-decoration:none">
+      <span class="icon-disk">👤</span>
+      <span>ABOUT<br>ME</span>
+    </a>
+    <a href="#aigc" class="desk-icon" style="text-decoration:none">
+      <span class="icon-folder">🤖</span>
+      <span>AIGC<br>CONTENT</span>
+    </a>
+    <a href="#documentary" class="desk-icon" style="text-decoration:none">
+      <span class="icon-globe">🎬</span>
+      <span>FILM<br>WORKS</span>
+    </a>
+    <a href="#creative" class="desk-icon" style="text-decoration:none">
+      <span class="icon-folder">📊</span>
+      <span>CREATIVE<br>PLAN</span>
+    </a>
+    <a href="#event" class="desk-icon" style="text-decoration:none">
+      <span class="icon-folder">📋</span>
+      <span>EVENT<br>EXEC</span>
+    </a>
+    <a href="#contact" class="desk-icon" style="text-decoration:none">
+      <span class="icon-globe">✉️</span>
+      <span>CONTACT<br>ME</span>
+    </a>
+  </div>
+
+  <!-- ===== BROWSER FRAME ===== -->
+  <div class="browser-frame">
+    <!-- Title bar -->
+    <div class="browser-titlebar">
+      <div class="browser-title">🌐 <span>TAO JUN PORTFOLIO - Netscape Navigator</span></div>
+      <div class="browser-btns">
+        <button class="minimize">─</button>
+        <button>☐</button>
+        <button class="close">✕</button>
+      </div>
+    </div>
+    <!-- Menu bar -->
+    <div class="browser-menubar">
+      <span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span>
+      <span><u>G</u>o</span><span>Book<u>m</u>arks</span>
+      <span><u>O</u>ptions</span><span><u>W</u>indow</span>
+      <span><u>H</u>elp</span>
+    </div>
+    <!-- Address bar -->
+    <div class="browser-address">
+      <label>📍 Location:</label>
+      <input type="text" value="C:\PORTFOLIO\TAOJUN\index.html" readonly>
+    </div>
+
+    <!-- ===== PAGE CONTENT ===== -->
+    <div class="browser-content">
+      <div class="page-content">
+
+        <!-- ===== HERO ===== -->
+        <div class="hero-window">
+          <div class="win-titlebar">
+            <div class="win-title"><span class="win-icon">⚡</span> PORTFOLIO.EXE</div>
+            <div class="win-btns">
+              <button>─</button><button>☐</button><button>✕</button>
+            </div>
+          </div>
+          <div class="hero-inner">
+            <div class="hero-title">PORTFOLIO.EXE</div>
+            <div class="hero-name">陶骏 TAO JUN</div>
+            <div class="hero-role">AIGC CONTENT CREATOR / FILMMAKER / CREATIVE PLANNER<div class="hero-blink"></div></div>
+          </div>
+          <div class="marquee-bar">
+            <div class="marquee-inner">
+              ★ WELCOME TO MY PORTFOLIO ★ 欢迎光临我的个人作品集 ★ AIGC CONTENT CREATOR ★ FILMMAKER ★ CREATIVE PLANNER ★ LOADING... ★ WELCOME TO MY PORTFOLIO ★ 欢迎光临我的个人作品集 ★ AIGC CONTENT CREATOR ★ FILMMAKER ★ CREATIVE PLANNER ★ LOADING...
+            </div>
+          </div>
+        </div>
+
+
+
+        <!-- ===== WINDOW COLLAGE ===== -->
+        <div class="windows-grid">
+
+          <!-- ========== ABOUT ME ========== -->
+          <div class="pixel-glow span-2 win-window" id="about">
+            <div class="win-titlebar">
+              <div class="win-title"><span class="win-icon">📄</span> ABOUT_ME.TXT</div>
+              <div class="win-btns"><button>─</button><button>☐</button><button>✕</button></div>
+            </div>
+            <div class="win-menubar">
+              <span>File</span><span>Edit</span><span>View</span><span>Help</span>
+            </div>
+            <div class="win-body pixel-scanlines">
+              <div class="about-photo-box">
+                <img src="陶骏/像素风.png" alt="陶骏" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#000080,#1084d0)';this.parentElement.innerHTML+='<div style=color:white;text-align:center;padding-top:35px;font-size:10px>PHOTO</div>'">
+              </div>
+              <div id="pixel-card-demo" data-content="🎮 像素风卡片组件<br><span style='font-size:10px;opacity:0.7'>PIXEL CARD — PINK VARIANT</span>" style="margin-bottom:12px"></div>
+              <div class="pixel-label">> ABOUT ME</div>
+              <p style="font-size:14px;font-weight:bold;margin-bottom:4px">陶骏 TAO JUN</p>
+              <p style="font-size:11px;color:#666;margin-bottom:10px">AIGC Content Creator / Filmmaker / Creative Planner</p>
+              <p style="font-size:12px;line-height:1.8">
+                具备广播电视编导与人类学学习背景，拥有纪录片导演、品牌活动策划、新媒体运营、活动执行及AIGC内容制作经验。能够完成从创意构思、脚本策划、视觉设定到内容制作、传播运营与项目落地的完整流程。
+              </p>
+
+              <hr class="win-sep">
+              <div class="pixel-label">> EDUCATION</div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px dotted #ccc">
+                <span>东北大学</span><span style="color:#666">人类学</span><span style="color:#888;font-size:10px">2025.09—2027.06</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px dotted #ccc">
+                <span>长沙学院</span><span style="color:#666">广播电视编导</span><span style="color:#888;font-size:10px">2021.09—2025.06</span>
+              </div>
+
+              <hr class="win-sep">
+              <div class="pixel-label">> CORE SKILLS</div>
+              <div class="skills-grid">
+                <span class="skill-tag">📹 纪录片导演</span>
+                <span class="skill-tag">🎬 AIGC内容创作</span>
+                <span class="skill-tag">📋 创意策划</span>
+                <span class="skill-tag">🎤 活动执行</span>
+                <span class="skill-tag">✍️ 脚本策划</span>
+                <span class="skill-tag">📱 新媒体运营</span>
+                <span class="skill-tag">🎨 视觉设定</span>
+                <span class="skill-tag">📊 项目管理</span>
+                <span class="skill-tag">🎵 AI音乐制作</span>
+                <span class="skill-tag">🎥 视频后期</span>
+              </div>
+            </div>
+            <div class="win-statusbar">
+              <span>Lines: 42</span><span>|</span><span>Col: 1</span><span>|</span><span>INS</span>
+            </div>
+          </div>
+          <!-- ========== AIGC CONTENT CREATION ========== -->
+          <div class="pixel-glow span-2 win-window" id="aigc">
+            <div class="win-titlebar">
+              <div class="win-title"><span class="win-icon">🤖</span> AIGC_CONTENT.EXE</div>
+              <div class="win-btns"><button>─</button><button>☐</button><button>✕</button></div>
+            </div>
+            <div class="win-menubar">
+              <span>File</span><span>Edit</span><span>View</span><span>Tools</span><span>Window</span><span>Help</span>
+            </div>
+            <div class="win-body pixel-scanlines" style="padding:8px">
+              <div style="border:2px solid;border-color:#fff #555 #555 #fff;background:#c0c0c0;padding:8px;margin-bottom:8px">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+                  <span style="font-size:20px">🤖</span>
+                  <span style="font-weight:bold;font-size:13px">PETRA AI音乐人</span>
+                </div>
+                <p style="font-size:11px;line-height:1.6;margin-bottom:6px">
+                  PETRA 是一个AI驱动的虚拟音乐人项目，融合AI音乐生成、视觉创作与数字人技术，打造完整的虚拟艺人IP生态。从音乐制作、MV创作到视觉包装，全流程AI辅助创作。
+                </p>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+                  <span class="skill-tag">AI音乐生成</span>
+                  <span class="skill-tag">虚拟人设计</span>
+                  <span class="skill-tag">AI MV制作</span>
+                  <span class="skill-tag">视觉包装</span>
+                </div>
+                <div class="media-player" style="margin-bottom:4px">
+                  <div class="mp-screen">
+                    <a href="https://www.xinpianchang.com/a13775056?from=private_pwd&pwd=cf6c" target="_blank" style="display:block;width:100%;height:100%;position:absolute;top:0;left:0;cursor:pointer;text-decoration:none">
+                    <img src="PETRA/MV海报/c2199751e05e5cdb4cdf51f2228ada9d.png" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">
+                    <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;transition:background 0.2s">
+                      <span style="font-size:36px;color:#fff;text-shadow:0 0 10px rgba(0,0,0,0.5)">▶</span>
+                    </div>
+                  </a>
+                  </div>
+                  <div class="mp-controls">
+                    <button class="mp-btn" onclick="window.open('https://www.xinpianchang.com/a13775056?from=private_pwd&pwd=cf6c','_blank')">▶</button>
+                    <div class="mp-progress"><div class="mp-progress-fill" style="width:100%"></div></div>
+                    <span style="font-size:9px">PETRA MV 🔑cf6c</span>
+                  </div>
+                </div>
+                <div class="gallery-grid col2" style="margin-top:6px">
+                  <div class="gallery-item"><img src="PETRA/MV静帧/c1fd1329c80a654974ce60d3d2ed1cb0.png" alt=""></div>
+                  <div class="gallery-item"><img src="PETRA/MV静帧/990a54cacd47bd1f8ef763374b76ec19.png" alt=""></div>
+                  <div class="gallery-item"><img src="PETRA/MV静帧/331e96c43b28904402464141748a82fb.png" alt=""></div>
+                  <div class="gallery-item"><img src="PETRA/MV静帧/8cad907a74d4131e1cca7ca9df6b71e8.png" alt=""></div>
+                </div>
+                <div style="margin-top:6px">
+                  <div class="win-progress"><div class="win-progress-fill" style="width:78%"></div></div>
+                  <p style="font-size:9px;color:#666;margin-top:2px">LOADING VISUALS... 78%</p>
+                </div>
+              </div>
+
+<div style="border:2px solid;border-color:#fff #555 #555 #fff;background:#c0c0c0;padding:8px">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+                  <span style="font-size:20px">📺</span>
+                  <span style="font-weight:bold;font-size:13px">AI商业影像</span>
+                </div>
+                <p style="font-size:11px;line-height:1.6;margin-bottom:8px">
+                  AI驱动的商业影像创作，包括二维动画广告与三维动画广告制作探索。
+                </p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                  <div style="border:2px solid;border-color:#fff #555 #555 #fff;background:#c0c0c0;padding:8px">
+                    <p style="font-weight:bold;font-size:12px;margin-bottom:4px">🎬 二维动画广告 · 可口可乐</p>
+                    <div class="media-player">
+                      <div class="mp-screen">
+                        <a href="https://www.xinpianchang.com/a13775058?from=private_pwd&pwd=cx7a" target="_blank" style="display:block;width:100%;height:100%;position:absolute;top:0;left:0;cursor:pointer;text-decoration:none">
+                        <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a0000,#4a0000);position:absolute;top:0;left:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px">🥤 可口可乐</div>
+                        <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;transition:background 0.2s">
+                          <span style="font-size:36px;color:#fff;text-shadow:0 0 10px rgba(0,0,0,0.5)">▶</span>
+                        </div>
+                      </a>
+                      </div>
+                      <div class="mp-controls">
+                        <button class="mp-btn" onclick="window.open('https://www.xinpianchang.com/a13775058?from=private_pwd&pwd=cx7a','_blank')">▶</button>
+                    <div class="mp-progress"><div class="mp-progress-fill" style="width:100%"></div></div>
+                    <span style="font-size:9px">可口可乐 🔑cx7a</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="border:2px solid;border-color:#fff #555 #555 #fff;background:#c0c0c0;padding:8px">
+                    <p style="font-weight:bold;font-size:12px;margin-bottom:4px">🎥 三维动画广告 · 追上我的快乐节拍</p>
+                    <div class="media-player">
+                      <div class="mp-screen">
+                        <a href="https://www.xinpianchang.com/a13775060?from=private_pwd&pwd=capz" target="_blank" style="display:block;width:100%;height:100%;position:absolute;top:0;left:0;cursor:pointer;text-decoration:none">
+                        <div style="width:100%;height:100%;background:linear-gradient(135deg,#001a1a,#004a4a);position:absolute;top:0;left:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px">🎥 追上我的快乐节拍</div>
+                        <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;transition:background 0.2s">
+                          <span style="font-size:36px;color:#fff;text-shadow:0 0 10px rgba(0,0,0,0.5)">▶</span>
+                        </div>
+                      </a>
+                      </div>
+                      <div class="mp-controls">
+                        <button class="mp-btn" onclick="window.open('https://www.xinpianchang.com/a13775060?from=private_pwd&pwd=capz','_blank')">▶</button>
+                    <div class="mp-progress"><div class="mp-progress-fill" style="width:100%"></div></div>
+                    <span style="font-size:9px">追上我的快乐节拍 🔑capz</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+<span>3 projects</span><span>|</span><span>Format: AVI</span>
+            </div>
+          </div>
+
+          <!-- ========== DOCUMENTARY FILM ========== -->
+          <div class="pixel-glow span-2 win-window" id="documentary">
+            <div class="win-titlebar">
+              <div class="win-title"><span class="win-icon">🎬</span> DOCUMENTARY.AVI</div>
+              <div class="win-btns"><button>─</button><button>☐</button><button>✕</button></div>
+            </div>
+            <div class="win-menubar">
+              <span>File</span><span>Play</span><span>View</span><span>Help</span>
+            </div>
+            <div class="win-body pixel-scanlines" style="padding:8px">
+              <div style="border:2px solid;border-color:#fff #555 #555 #fff;background:#c0c0c0;padding:8px;margin-bottom:8px">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+                  <span style="font-size:20px">📹</span>
+                  <span style="font-weight:bold;font-size:13px">《日常录制》</span>
+                </div>
+                <div class="media-player" style="margin-bottom:4px">
+                  <div class="mp-screen">
+                    <a href="https://www.xinpianchang.com/a13395237?from=private_pwd&pwd=2pmj" target="_blank" style="display:block;width:100%;height:100%;position:absolute;top:0;left:0;cursor:pointer;text-decoration:none">
+                      <img src="日常录制/静帧/63e59dfd5573f6ef96f40854aee824d0.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">
+                      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;transition:background 0.2s">
+                        <span style="font-size:36px;color:#fff;text-shadow:0 0 10px rgba(0,0,0,0.5)">▶</span>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="mp-controls">
+                    <button class="mp-btn" onclick="window.open('https://www.xinpianchang.com/a13395237?from=private_pwd&pwd=2pmj','_blank')">▶</button>
+                    <div class="mp-progress"><div class="mp-progress-fill" style="width:100%"></div></div>
+                    <span style="font-size:9px">日常录制 🔑2pmj</span>
+                  </div>
+                </div>
+                <p style="font-size:11px;line-height:1.6">以日常为切面的纪录片创作，捕捉普通生活中的诗意瞬间与真实情感。</p>
+                <div class="gallery-grid" style="margin-top:6px">
+                  <div class="gallery-item"><img src="日常录制/静帧/54dabf74be6ba87ce195dd86f1bd0d2b.jpg" alt=""></div>
+                  <div class="gallery-item"><img src="日常录制/静帧/bdaceaa087093f90ee9031d7ed524a10.jpg" alt=""></div>
+                  <div class="gallery-item"><img src="日常录制/静帧/f7bdd2a402bf6d5c9a3c375a6478ef41.jpg" alt=""></div>
+                </div>
+              </div>
+
+              <div style="border:2px solid;border-color:#fff #555 #555 #fff;background:#c0c0c0;padding:8px">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+                  <span style="font-size:20px">🎞️</span>
+                  <span style="font-weight:bold;font-size:13px">《门洞商店》</span>
+                </div>
+                <div class="media-player" style="margin-bottom:4px">
+                  <div class="mp-screen">
+                    <a href="https://www.xinpianchang.com/a13603756?from=private_pwd&pwd=dk3e" target="_blank" style="display:block;width:100%;height:100%;position:absolute;top:0;left:0;cursor:pointer;text-decoration:none">
+                      <img src="门洞商店/静帧/1e4dd73e743470d8d9baeae942ab7ad5.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">
+                      <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;transition:background 0.2s">
+                        <span style="font-size:36px;color:#fff;text-shadow:0 0 10px rgba(0,0,0,0.5)">▶</span>
+                      </div>
+                    </a>
+                  </div>
+                  <div class="mp-controls">
+                    <button class="mp-btn" onclick="window.open('https://www.xinpianchang.com/a13603756?from=private_pwd&pwd=dk3e','_blank')">▶</button>
+                    <div class="mp-progress"><div class="mp-progress-fill" style="width:100%"></div></div>
+                    <span style="font-size:9px">门洞商店 🔑dk3e</span>
+                  </div>
+                </div>
+                <p style="font-size:11px;line-height:1.6">以一家小店为窗口，记录社区百态与人情冷暖，展现城市角落的真实生活图景。</p>
+                <div class="gallery-grid" style="margin-top:6px">
+                  <div class="gallery-item"><img src="门洞商店/静帧/5df25a8099d55820a1c6f50240cbf8c9.jpg" alt=""></div>
+                  <div class="gallery-item"><img src="门洞商店/静帧/18e6a45801efb985d134d1f931b77ae1.jpg" alt=""></div>
+                  <div class="gallery-item"><img src="门洞商店/静帧/abc0a696e8412fc963191b0862f801ac.jpg" alt=""></div>
+                </div>
+              </div>
+            </div>
+            <div class="win-statusbar">
+              <span>2 projects</span><span>|</span><span>Format: AVI</span>
+            </div>
+          </div>
+
+          <!-- ========== CREATIVE PLANNING ========== -->
+          <div class="pixel-glow span-2 win-window" id="creative">
+            <div class="win-titlebar">
+              <div class="win-title"><span class="win-icon">📊</span> CREATIVE_PLAN.PPT</div>
+              <div class="win-btns"><button>─</button><button>☐</button><button>✕</button></div>
+            </div>
+            <div class="win-menubar">
+              <span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Slide Show</span>
+            </div>
+            <div class="win-body pixel-scanlines">
+              <div style="border:2px solid;border-color:#fff #555 #555 #fff;background:#c0c0c0;padding:12px;margin-bottom:10px">
+                <div style="display:flex;align-items:flex-start;gap:10px">
+                  <span style="font-size:28px">🎂</span>
+                  <div>
+                    <p style="font-weight:bold;font-size:13px">Bilibili 16周年庆</p>
+                    <p style="font-size:10px;color:#666;margin:2px 0">平台周年庆活动策划</p>
+                    <p style="font-size:11px;line-height:1.7;margin-bottom:8px">
+                      参与周年庆节目创意与内容包装，负责部分UP主推荐与资源匹配，结合内容风格、粉丝画像、平台影响力及商业表现整理合作亮点。
+                    </p>
+                    <div class="skills-grid" style="margin-bottom:8px">
+                      <span class="skill-tag">活动定位</span>
+                      <span class="skill-tag">节目创意</span>
+                      <span class="skill-tag">UP主推荐</span>
+                      <span class="skill-tag">提案页面</span>
+                    </div>
+                    <a href='创意策划/BilBil16周年庆/【秀案】bilibili  16周年庆提案.pdf' target="_blank" class="win-btn">📄 查看秀案 PDF</a>
+                  </div>
+                </div>
+              </div>
+
+              <div style="border:2px solid;border-color:#fff #555 #555 #fff;background:#c0c0c0;padding:12px">
+                <div style="display:flex;align-items:flex-start;gap:10px">
+                  <span style="font-size:28px">⚔️</span>
+                  <div>
+                    <p style="font-weight:bold;font-size:13px">《率土之滨》"万民长歌"十周年庆</p>
+                    <p style="font-size:10px;color:#666;margin:2px 0">游戏周年庆活动策划</p>
+                    <p style="font-size:11px;line-height:1.7;margin-bottom:8px">
+                      参与活动创意构思、秀案制作、互动内容设计及项目提案PPT撰写，协助梳理现场节目、游戏文化与玩家参与之间的内容关系。
+                    </p>
+                    <div class="skills-grid" style="margin-bottom:8px">
+                      <span class="skill-tag">核心创意</span>
+                      <span class="skill-tag">互动玩法</span>
+                      <span class="skill-tag">舞台视觉</span>
+                      <span class="skill-tag">提案策划</span>
+                    </div>
+                    <a href='创意策划/率土之滨/【讲稿版】《率土之滨》内场舞台部分.pdf' target="_blank" class="win-btn">📄 查看提案 PDF</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="win-statusbar">
+              <span>Slide 1 of 2</span><span>|</span><span>PPT</span>
+            </div>
+          </div>
+
+                    <!-- ========== EVENT EXECUTION ========== -->
+          <div class="pixel-glow span-2 win-window" id="event">
+            <div class="win-titlebar">
+              <div class="win-title"><span class="win-icon">📋</span> EVENT_EXECUTION.DOC</div>
+              <div class="win-btns"><button>─</button><button>☐</button><button>✕</button></div>
+            </div>
+            <div class="win-menubar">
+              <span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Tools</span><span>Table</span><span>Help</span>
+            </div>
+            <div class="win-body pixel-scanlines" style="padding:8px">
+              <div style="border:2px solid;border-color:#fff #555 #555 #fff;background:#c0c0c0;padding:8px">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+                  <span style="font-size:20px">📋</span>
+                  <span style="font-weight:bold;font-size:13px">"多重曝光"颁奖典礼暨毕业影展</span>
+                </div>
+                <p style="font-size:10px;color:#666;margin-bottom:4px">总策划 / 策划执行</p>
+                <p style="font-size:11px;line-height:1.6;margin-bottom:8px">
+                  围绕毕业作品展示与颁奖典礼，负责活动整体提案、前期筹备、流程规划、主持台本、物料协调及现场执行，推动影展与典礼完整落地。
+                </p>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+                  <span class="skill-tag">项目提案</span>
+                  <span class="skill-tag">活动流程</span>
+                  <span class="skill-tag">主持台本</span>
+                  <span class="skill-tag">物料统筹</span>
+                  <span class="skill-tag">现场协调</span>
+                  <span class="skill-tag">执行推进</span>
+                </div>
+                <div class="gallery-grid" style="grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+                  <div class="gallery-item"><img src='多重曝光照片/照片/LF2A2454-opq3707528487.jpg' alt=""></div>
+                  <div class="gallery-item"><img src='多重曝光照片/照片/LF2A2457-opq3707471850.jpg' alt=""></div>
+                </div>
+                <div class="gallery-grid" style="grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px">
+                  <div class="gallery-item"><img src='多重曝光照片/照片/LF2A2472-opq3707509587.jpg' alt=""></div>
+                  <div class="gallery-item"><img src='多重曝光照片/照片/LF2A2498-opq3707472016.jpg' alt=""></div>
+                  <div class="gallery-item"><img src='多重曝光照片/照片/LF2A2836-opq3707456140.jpg' alt=""></div>
+                </div>
+                <div class="win-progress"><div class="win-progress-fill" style="width:100%"></div></div>
+                <p style="font-size:9px;color:#666;margin-top:2px">STATUS: COMPLETED ✓</p>
+              </div>
+            </div>
+            <div class="win-statusbar">
+              <span>1 project</span><span>|</span><span>Format: DOC</span>
+            </div>
+          </div>
+
+          <!-- ========== CONTACT ========== -->
+          <div class="pixel-glow span-2 win-window" id="contact">
+            <div class="win-titlebar">
+              <div class="win-title"><span class="win-icon">✉️</span> CONTACT.TXT</div>
+              <div class="win-btns"><button>─</button><button>☐</button><button>✕</button></div>
+            </div>
+            <div class="win-menubar">
+              <span>File</span><span>Edit</span><span>View</span><span>Help</span>
+            </div>
+            <div class="win-body pixel-scanlines">
+              <p style="text-align:center;font-family:'Press Start 2P','Microsoft YaHei',monospace;font-size:14px;color:#000080;margin-bottom:16px">
+                THANKS FOR WATCHING
+              </p>
+              <p style="text-align:center;font-size:12px;color:#666;margin-bottom:4px">
+                从记录真实，到创造新的影像世界。我仍在寻找下一种讲故事的方式。
+              </p>
+              <p style="text-align:center;font-size:14px;font-weight:bold;color:#000080;margin-bottom:16px">
+                陶骏 TAO JUN
+              </p>
+
+              <div class="contact-grid">
+                <div class="contact-card">
+                  <div class="cc-icon">📞</div>
+                  <div class="cc-label">PHONE</div>
+                  <div class="cc-value">13102522337</div>
+                </div>
+                <div class="contact-card">
+                  <div class="cc-icon">📧</div>
+                  <div class="cc-label">EMAIL</div>
+                  <div class="cc-value">3214069097@qq.com</div>
+                </div>
+                <a href="#" class="contact-card">
+                  <div class="cc-icon">🖼️</div>
+                  <div class="cc-label">VIEW MY WORKS</div>
+                  <div class="cc-value">浏览作品</div>
+                </a>
+                <a href="#" class="contact-card">
+                  <div class="cc-icon">💾</div>
+                  <div class="cc-label">DOWNLOAD RESUME</div>
+                  <div class="cc-value">下载简历</div>
+                </a>
+              </div>
+            </div>
+            <div class="win-statusbar">
+              <span>Connected</span><span>|</span><span>100%</span>
+            </div>
+          </div>
+
+        </div><!-- /windows-grid -->
+
+        <!-- Footer -->
+        <div style="text-align:center;padding:10px 0;font-size:10px;color:#888;font-family:'Microsoft YaHei','PingFang SC',sans-serif">
+          © 2026 TAO JUN. All Rights Reserved. | BEST VIEWED IN 1024x768
+        </div>
+
+      </div><!-- /page-content -->
+    </div><!-- /browser-content -->
+
+    <!-- Status bar -->
+    <div class="browser-status">
+      <span>Document: Done</span>
+      <span class="status-pad">100%</span>
+    </div>
+  </div><!-- /browser-frame -->
+
+</div><!-- /desktop -->
+
+<!-- ===== TASKBAR ===== -->
+<div class="taskbar">
+  <button class="taskbar-start" onclick="alert('🖥️ START MENU — Coming soon!')">START</button>
+  <div class="taskbar-tasks">
+    <span class="taskbar-item active">📄 PORTFOLIO.EXE</span>
+    <span class="taskbar-item">📁 PROJECTS</span>
+    <span class="taskbar-item">✉️ CONTACT.TXT</span>
+  </div>
+  <div class="taskbar-clock" id="taskbar-clock">16:42</div>
+</div>
+
+<script>
+// AIGC tab switcher
+function switchAigcTab(evt, tabId) {
+  document.querySelectorAll('.aigc-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.aigc-tab-content').forEach(c => c.classList.remove('active'));
+  evt.target.classList.add('active');
+  document.getElementById('aigc-' + tabId).classList.add('active');
+}
+
+// Taskbar clock
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('taskbar-clock').textContent = h + ':' + m;
+}
+updateClock();
+setInterval(updateClock, 30000);
+</script>
+
+<!-- Import map for ogl -->
+<script type="importmap">
+{
+  "imports": {
+    "ogl": "./node_modules/.pnpm/ogl@1.0.11/node_modules/ogl/src/index.js"
+  }
+}
+</script>
+
+<!-- FaultyTerminal background -->
+<script type="module">
+import FaultyTerminal from './FaultyTerminal.js';
+import PixelCard from './PixelCard.js';
+const container = document.getElementById('terminal-bg');
+
+// PixelCard
+const pixelCardDemo = new PixelCard(document.getElementById('pixel-card-demo'), {
+  variant: 'pink',
+  title: '> PIXEL_CARD.EXE',
+  glow: true,
+});
+
+const terminal = new FaultyTerminal(container, {
+  scale: 1.5,
+  gridMul: [2, 1],
+  digitSize: 1.2,
+  timeScale: 0.5,
+  pause: false,
+  scanlineIntensity: 0.5,
+  glitchAmount: 1,
+  flickerAmount: 1,
+  noiseAmp: 1,
+  chromaticAberration: 0,
+  dither: 0,
+  curvature: 0.1,
+  tint: '#A7EF9E',
+  mouseReact: true,
+  mouseStrength: 0.5,
+  pageLoadAnimation: true,
+  brightness: 0.6,
+});
+</script>
+
+</body>
+</html>
